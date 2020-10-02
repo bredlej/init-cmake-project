@@ -5,24 +5,112 @@ if [[ $# -ne 4 ]]; then
 	echo "Initializes an empty CMake C project"
 	exit 2
 fi
-mkdir "$1/$2"
-touch "$1/$2/.gitignore"
-touch "$1/$2/README.md"
-touch "$1/$2/LICENSE.md"
-touch "$1/$2/CMakeLists.txt"
-mkdir "$1/$2/cmake"
-mkdir "$1/$2/include"
-mkdir "$1/$2/include/$2"
-touch "$1/$2/include/$2/$3.c"
-mkdir "$1/$2/src"
-touch "$1/$2/src/CMakeLists.txt"
-touch "$1/$2/src/$4.c"
-mkdir "$1/$2/tests"
-touch "$1/$2/tests/CMakeLists.txt"
-touch "$1/$2/tests/test$3.c"
-mkdir "$1/$2/docs"
-touch "$1/$2/docs/CMakeLists.txt"
-mkdir "$1/$2/extern"
-mkdir "$1/$2/scripts"
+
+PROJECT_NAME="$2"
+LIBRARY_NAME="$3"
+EXECUTABLE_NAME="$4"
+PROJECT_DIR="$1/$2"
+
+mkdir "${PROJECT_DIR}"
+touch "${PROJECT_DIR}/.gitignore"
+touch "${PROJECT_DIR}/README.md"
+touch "${PROJECT_DIR}/LICENSE.md"
+touch "${PROJECT_DIR}/CMakeLists.txt"
+mkdir "${PROJECT_DIR}/cmake"
+mkdir "${PROJECT_DIR}/include"
+mkdir "${PROJECT_DIR}/include/${PROJECT_NAME}"
+touch "${PROJECT_DIR}/include/${PROJECT_NAME}/${LIBRARY_NAME}.h"
+mkdir "${PROJECT_DIR}/src"
+touch "${PROJECT_DIR}/src/CMakeLists.txt"
+touch "${PROJECT_DIR}/src/${LIBRARY_NAME}.c"
+mkdir "${PROJECT_DIR}/apps"
+touch "${PROJECT_DIR}/apps/CMakeLists.txt"
+touch "${PROJECT_DIR}/apps/${EXECUTABLE_NAME}.c"
+mkdir "${PROJECT_DIR}/tests"
+touch "${PROJECT_DIR}/tests/CMakeLists.txt"
+touch "${PROJECT_DIR}/tests/test_${LIBRARY_NAME}.c"
+mkdir "${PROJECT_DIR}/docs"
+touch "${PROJECT_DIR}/docs/CMakeLists.txt"
+mkdir "${PROJECT_DIR}/extern"
+mkdir "${PROJECT_DIR}/scripts"
+mkdir "${PROJECT_DIR}/build"
 
 echo "Created CMake project ./$1"
+
+# ----- ./CMakeLists.txt
+
+cat << MAIN_CMAKELISTS >> "${PROJECT_DIR}/CMakeLists.txt"
+cmake_minimum_required(VERSION 3.11)
+
+project(
+	${PROJECT_NAME^}
+	VERSION 0.1
+	DESCRIPTION "Empty project template"
+	LANGUAGES C)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_FLAGS "-Wall -Wno-error")
+
+add_subdirectory(src)
+add_subdirectory(apps)
+MAIN_CMAKELISTS
+
+# ----- ./src/CMakeLists.txt
+
+cat << SRC_CMAKELISTS >> "${PROJECT_DIR}/src/CMakeLists.txt"
+set(HEADER_LIST "\${${PROJECT_NAME^}_SOURCE_DIR}/include/${PROJECT_NAME}/${LIBRARY_NAME}.h")
+
+add_library(${PROJECT_NAME}_library ${LIBRARY_NAME}.c \${HEADER_LIST})
+
+target_include_directories(${PROJECT_NAME}_library PUBLIC ../include)
+SRC_CMAKELISTS
+
+# ----- ./apps/CMakeLists.txt
+
+cat << APPS_CMAKELISTS >> "${PROJECT_DIR}/apps/CMakeLists.txt"
+add_executable(${EXECUTABLE_NAME} ${EXECUTABLE_NAME}.c)
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${PROJECT_NAME}_library)
+APPS_CMAKELISTS
+
+# ------ ./include/project/library.h
+
+cat << LIBRARY_H >> "${PROJECT_DIR}/include/${PROJECT_NAME}/${LIBRARY_NAME}.h"
+#ifndef ${PROJECT_NAME^^}_H_
+#define ${PROJECT_NAME^^}_H_
+#define VERSION 0.01
+
+void print_version(void);
+#endif
+LIBRARY_H
+
+# ------ ./src/library.c
+cat << LIBRARY_C >> "${PROJECT_DIR}/src/${LIBRARY_NAME}.c"
+#include <${PROJECT_NAME}/${LIBRARY_NAME}.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+void print_version()
+{
+	printf("${PROJECT_NAME^} (version %0.2f)\n", VERSION);
+}
+LIBRARY_C
+
+# ------ ./apps/app.c
+cat << APP_C >> "${PROJECT_DIR}/apps/${EXECUTABLE_NAME}.c"
+#include <${PROJECT_NAME}/${LIBRARY_NAME}.h>
+
+int main()
+{
+	print_version();
+	return 0;
+}
+APP_C
+
+cat << BUILD_SH >> "${PROJECT_DIR}/build/build_app.sh"
+cmake ..
+make
+BUILD_SH
+
+chmod +x "${PROJECT_DIR}/build/build_app.sh"
+
