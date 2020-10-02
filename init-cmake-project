@@ -35,7 +35,6 @@ mkdir "${PROJECT_DIR}/extern"
 mkdir "${PROJECT_DIR}/scripts"
 mkdir "${PROJECT_DIR}/build"
 
-echo "Created CMake project ./$1"
 
 # ----- ./CMakeLists.txt
 
@@ -114,3 +113,4 @@ BUILD_SH
 
 chmod +x "${PROJECT_DIR}/build/build_app.sh"
 
+echo "Created CMake project ${PROJECT_NAME^} in ${PROJECT_DIR}."
