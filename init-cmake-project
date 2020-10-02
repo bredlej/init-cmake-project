@@ -1,0 +1,28 @@
+#!/bin/bash
+if [[ $# -ne 4 ]]; then
+	echo "Usage: init-cmake-project PROJECT_DIR PROJECT_NAME LIBRARY_NAME EXECUTABLE_NAME"
+	echo ""   
+	echo "Initializes an empty CMake C project"
+	exit 2
+fi
+mkdir "$1/$2"
+touch "$1/$2/.gitignore"
+touch "$1/$2/README.md"
+touch "$1/$2/LICENSE.md"
+touch "$1/$2/CMakeLists.txt"
+mkdir "$1/$2/cmake"
+mkdir "$1/$2/include"
+mkdir "$1/$2/include/$2"
+touch "$1/$2/include/$2/$3.c"
+mkdir "$1/$2/src"
+touch "$1/$2/src/CMakeLists.txt"
+touch "$1/$2/src/$4.c"
+mkdir "$1/$2/tests"
+touch "$1/$2/tests/CMakeLists.txt"
+touch "$1/$2/tests/test$3.c"
+mkdir "$1/$2/docs"
+touch "$1/$2/docs/CMakeLists.txt"
+mkdir "$1/$2/extern"
+mkdir "$1/$2/scripts"
+
+echo "Created CMake project ./$1"
