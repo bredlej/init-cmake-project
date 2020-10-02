@@ -6,12 +6,6 @@ Based on the project structure described in [How to structure your project](http
 
 ## Usage
 
-Make sure the script has executable permissions
-
-` > chmod +x init-cmake-project`
-
-Run with
-
 ` > init-cmake-project PROJECT_DIR PROJECT_NAME LIBRARY_NAME EXECUTABLE_NAME`
 
 This will create a ready-to-build project inside `PROJECT_DIR`.
