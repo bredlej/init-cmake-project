@@ -14,8 +14,9 @@ Run with
 
 ` > init-cmake-project PROJECT_DIR PROJECT_NAME LIBRARY_NAME EXECUTABLE_NAME`
 
-This will create a ready-to-build project under the `PROJECT_DIR` directory.
-To build the project go inside the `build` directory and run `build.sh`
+This will create a ready-to-build project inside `PROJECT_DIR`.
+
+To build the project go inside the `build` directory and run `build_app.sh`
 
 ## Dependencies
 
