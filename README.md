@@ -19,5 +19,5 @@ To build the project go inside the `build` directory and run `build.sh`
 
 ## Dependencies
 
-Needs Cmake to run
+Needs CMake installed to run.
 
