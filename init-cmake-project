@@ -11,7 +11,7 @@ LIBRARY_NAME="$3"
 EXECUTABLE_NAME="$4"
 PROJECT_DIR="$1/$2"
 
-mkdir "${PROJECT_DIR}"
+mkdir -p "${PROJECT_DIR}"
 touch "${PROJECT_DIR}/.gitignore"
 touch "${PROJECT_DIR}/README.md"
 touch "${PROJECT_DIR}/LICENSE.md"
