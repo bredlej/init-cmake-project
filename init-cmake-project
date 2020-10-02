@@ -50,8 +50,12 @@ project(
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_FLAGS "-Wall -Wno-error")
 
+enable_testing()
+
 add_subdirectory(src)
+add_subdirectory(extern)
 add_subdirectory(apps)
+add_subdirectory(tests)
 MAIN_CMAKELISTS
 
 # ----- ./src/CMakeLists.txt
@@ -71,6 +75,19 @@ add_executable(${EXECUTABLE_NAME} ${EXECUTABLE_NAME}.c)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${PROJECT_NAME}_library)
 APPS_CMAKELISTS
 
+# ----- ./extern/CMakeLists.txt
+cat << EXTERN_CMAKELISTS >> "${PROJECT_DIR}/extern/CMakeLists.txt"
+add_library(Unity STATIC Unity/src/unity.c)
+target_include_directories(Unity PUBLIC Unity/src)
+EXTERN_CMAKELISTS
+
+# ----- ./tests/CMakeLists.txt
+cat << TESTS_CMAKELISTS >> "${PROJECT_DIR}/tests/CMakeLists.txt"
+add_executable(test_${LIBRARY_NAME} test_${LIBRARY_NAME}.c)
+target_link_libraries(test_${LIBRARY_NAME} ${PROJECT_NAME}_library Unity)
+add_test(test_${PROJECT_NAME}_all test_${LIBRARY_NAME})
+TESTS_CMAKELISTS
+
 # ------ ./include/project/library.h
 
 cat << LIBRARY_H >> "${PROJECT_DIR}/include/${PROJECT_NAME}/${LIBRARY_NAME}.h"
@@ -79,6 +96,7 @@ cat << LIBRARY_H >> "${PROJECT_DIR}/include/${PROJECT_NAME}/${LIBRARY_NAME}.h"
 #define VERSION 0.01
 
 void print_version(void);
+int my_library_function();
 #endif
 LIBRARY_H
 
@@ -89,9 +107,14 @@ cat << LIBRARY_C >> "${PROJECT_DIR}/src/${LIBRARY_NAME}.c"
 #include <stdio.h>
 #include <stdlib.h>
 
-void print_version()
+void print_version(void)
 {
 	printf("${PROJECT_NAME^} (version %0.2f)\n", VERSION);
+}
+
+int my_library_function()
+{
+	return 1;
 }
 LIBRARY_C
 
@@ -99,18 +122,47 @@ LIBRARY_C
 cat << APP_C >> "${PROJECT_DIR}/apps/${EXECUTABLE_NAME}.c"
 #include <${PROJECT_NAME}/${LIBRARY_NAME}.h>
 
-int main()
+int main(void)
 {
 	print_version();
 	return 0;
 }
 APP_C
 
+# ------ ./tests/test_library.c
+cat << TEST_LIBRARY_C >> "${PROJECT_DIR}/tests/test_${LIBRARY_NAME}.c"
+#include <${PROJECT_NAME}/${LIBRARY_NAME}.h>
+#include <unity.h>
+
+void setUp(void) {}
+void tearDown(void) {}
+
+void test_Should_Run()
+{
+	TEST_ASSERT_TRUE_MESSAGE(1 == my_library_function(), "${LIBRARY_NAME} not recognized as project library.");
+}
+
+int main(void)
+{
+	UNITY_BEGIN();
+	RUN_TEST(test_Should_Run);
+	return UNITY_END();
+}
+TEST_LIBRARY_C
+
 cat << BUILD_SH >> "${PROJECT_DIR}/build/build_app.sh"
+#!/bin/bash
 cmake ..
 make
+ctest
 BUILD_SH
 
 chmod +x "${PROJECT_DIR}/build/build_app.sh"
-
 echo "Created CMake project ${PROJECT_NAME^} in ${PROJECT_DIR}."
+echo "Downloading dependencies into ${PROJECT_DIR}/extern:"
+git clone https://github.com/ThrowTheSwitch/Unity.git "${PROJECT_DIR}/extern/Unity"
+echo ""
+echo "Done."
+echo "Run ${PROJECT_DIR}/build/build_app.sh to build and test the project."
+
+
