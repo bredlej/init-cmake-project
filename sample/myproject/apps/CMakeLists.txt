@@ -1,0 +1,2 @@
+add_executable(myapplication myapplication.c)
+target_link_libraries(myapplication PRIVATE myproject_library)
