@@ -1,8 +1,8 @@
 #!/bin/bash
 if [[ $# -ne 4 ]]; then
-	echo "Usage: init-cmake-project PROJECT_DIR PROJECT_NAME LIBRARY_NAME EXECUTABLE_NAME"
-	echo ""   
-	echo "Initializes an empty CMake C project"
+	echo >&2 "Usage: init-cmake-project PROJECT_DIR PROJECT_NAME LIBRARY_NAME EXECUTABLE_NAME"
+	echo >&2 ""   
+	echo >&2 "Initializes an empty CMake C project"
 	exit 2
 fi
 
