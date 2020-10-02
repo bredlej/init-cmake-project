@@ -151,9 +151,9 @@ int main(void)
 TEST_LIBRARY_C
 
 cat << BUILD_SH >> "${PROJECT_DIR}/build/build_app.sh"
+#!/bin/bash
 (
 cd "\$( dirname "\${BASH_SOURCE[0]}" )"
-#!/bin/bash
 cmake ..
 make
 ctest
