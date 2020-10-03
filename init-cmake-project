@@ -112,6 +112,10 @@ void print_version(void)
 	printf("${PROJECT_NAME^} (version %0.2f)\n", VERSION);
 }
 
+/*
+	Function used for initial unit test of this library.
+	See ../tests/test_${LIBRARY_NAME}.c"
+*/
 int my_library_function(void)
 {
 	return 1;
