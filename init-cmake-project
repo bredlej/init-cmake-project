@@ -93,7 +93,7 @@ TESTS_CMAKELISTS
 cat << LIBRARY_H >> "${PROJECT_DIR}/include/${PROJECT_NAME}/${LIBRARY_NAME}.h"
 #ifndef ${PROJECT_NAME^^}_H_
 #define ${PROJECT_NAME^^}_H_
-#define VERSION 0.01
+#define VERSION 0.1
 
 void print_version(void);
 int my_library_function(void);
@@ -137,15 +137,15 @@ cat << TEST_LIBRARY_C >> "${PROJECT_DIR}/tests/test_${LIBRARY_NAME}.c"
 void setUp(void) {}
 void tearDown(void) {}
 
-void test_Should_Run()
+void test_Should_Run_Library_Function()
 {
-	TEST_ASSERT_TRUE_MESSAGE(1 == my_library_function(), "${LIBRARY_NAME} not recognized as project library.");
+	TEST_ASSERT_TRUE_MESSAGE(1 == my_library_function(), "Wrong initial function result of library ${LIBRARY_NAME}.");
 }
 
 int main(void)
 {
 	UNITY_BEGIN();
-	RUN_TEST(test_Should_Run);
+	RUN_TEST(test_Should_Run_Library_Function);
 	return UNITY_END();
 }
 TEST_LIBRARY_C
