@@ -16,29 +16,28 @@ touch "${PROJECT_DIR}/.gitignore"
 touch "${PROJECT_DIR}/README.md"
 touch "${PROJECT_DIR}/LICENSE.md"
 touch "${PROJECT_DIR}/CMakeLists.txt"
-mkdir "${PROJECT_DIR}/cmake"
-mkdir "${PROJECT_DIR}/include"
-mkdir "${PROJECT_DIR}/include/${PROJECT_NAME}"
+mkdir -p "${PROJECT_DIR}/cmake"
+mkdir -p "${PROJECT_DIR}/include"
+mkdir -p "${PROJECT_DIR}/include/${PROJECT_NAME}"
 touch "${PROJECT_DIR}/include/${PROJECT_NAME}/${LIBRARY_NAME}.h"
-mkdir "${PROJECT_DIR}/src"
+mkdir -p "${PROJECT_DIR}/src"
 touch "${PROJECT_DIR}/src/CMakeLists.txt"
 touch "${PROJECT_DIR}/src/${LIBRARY_NAME}.c"
-mkdir "${PROJECT_DIR}/apps"
+mkdir -p "${PROJECT_DIR}/apps"
 touch "${PROJECT_DIR}/apps/CMakeLists.txt"
 touch "${PROJECT_DIR}/apps/${EXECUTABLE_NAME}.c"
-mkdir "${PROJECT_DIR}/tests"
+mkdir -p "${PROJECT_DIR}/tests"
 touch "${PROJECT_DIR}/tests/CMakeLists.txt"
 touch "${PROJECT_DIR}/tests/test_${LIBRARY_NAME}.c"
-mkdir "${PROJECT_DIR}/docs"
+mkdir -p "${PROJECT_DIR}/docs"
 touch "${PROJECT_DIR}/docs/CMakeLists.txt"
-mkdir "${PROJECT_DIR}/extern"
-mkdir "${PROJECT_DIR}/scripts"
-mkdir "${PROJECT_DIR}/build"
+mkdir -p "${PROJECT_DIR}/extern"
+mkdir -p "${PROJECT_DIR}/scripts"
+mkdir -p "${PROJECT_DIR}/build"
 
 
 # ----- ./CMakeLists.txt
-
-cat << MAIN_CMAKELISTS >> "${PROJECT_DIR}/CMakeLists.txt"
+cat << MAIN_CMAKELISTS > "${PROJECT_DIR}/CMakeLists.txt"
 cmake_minimum_required(VERSION 3.11)
 
 project(
@@ -59,8 +58,7 @@ add_subdirectory(tests)
 MAIN_CMAKELISTS
 
 # ----- ./src/CMakeLists.txt
-
-cat << SRC_CMAKELISTS >> "${PROJECT_DIR}/src/CMakeLists.txt"
+cat << SRC_CMAKELISTS > "${PROJECT_DIR}/src/CMakeLists.txt"
 set(HEADER_LIST "\${${PROJECT_NAME^}_SOURCE_DIR}/include/${PROJECT_NAME}/${LIBRARY_NAME}.h")
 
 add_library(${PROJECT_NAME}_library ${LIBRARY_NAME}.c \${HEADER_LIST})
@@ -69,28 +67,26 @@ target_include_directories(${PROJECT_NAME}_library PUBLIC ../include)
 SRC_CMAKELISTS
 
 # ----- ./apps/CMakeLists.txt
-
-cat << APPS_CMAKELISTS >> "${PROJECT_DIR}/apps/CMakeLists.txt"
+cat << APPS_CMAKELISTS > "${PROJECT_DIR}/apps/CMakeLists.txt"
 add_executable(${EXECUTABLE_NAME} ${EXECUTABLE_NAME}.c)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${PROJECT_NAME}_library)
 APPS_CMAKELISTS
 
 # ----- ./extern/CMakeLists.txt
-cat << EXTERN_CMAKELISTS >> "${PROJECT_DIR}/extern/CMakeLists.txt"
+cat << EXTERN_CMAKELISTS > "${PROJECT_DIR}/extern/CMakeLists.txt"
 add_library(Unity STATIC Unity/src/unity.c)
 target_include_directories(Unity PUBLIC Unity/src)
 EXTERN_CMAKELISTS
 
 # ----- ./tests/CMakeLists.txt
-cat << TESTS_CMAKELISTS >> "${PROJECT_DIR}/tests/CMakeLists.txt"
+cat << TESTS_CMAKELISTS > "${PROJECT_DIR}/tests/CMakeLists.txt"
 add_executable(test_${LIBRARY_NAME} test_${LIBRARY_NAME}.c)
 target_link_libraries(test_${LIBRARY_NAME} ${PROJECT_NAME}_library Unity)
 add_test(test_${PROJECT_NAME}_all test_${LIBRARY_NAME})
 TESTS_CMAKELISTS
 
 # ------ ./include/project/library.h
-
-cat << LIBRARY_H >> "${PROJECT_DIR}/include/${PROJECT_NAME}/${LIBRARY_NAME}.h"
+cat << LIBRARY_H > "${PROJECT_DIR}/include/${PROJECT_NAME}/${LIBRARY_NAME}.h"
 #ifndef ${PROJECT_NAME^^}_H_
 #define ${PROJECT_NAME^^}_H_
 #define VERSION 0.1
@@ -101,7 +97,7 @@ int my_library_function(void);
 LIBRARY_H
 
 # ------ ./src/library.c
-cat << LIBRARY_C >> "${PROJECT_DIR}/src/${LIBRARY_NAME}.c"
+cat << LIBRARY_C > "${PROJECT_DIR}/src/${LIBRARY_NAME}.c"
 #include <${PROJECT_NAME}/${LIBRARY_NAME}.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -123,7 +119,7 @@ int my_library_function(void)
 LIBRARY_C
 
 # ------ ./apps/app.c
-cat << APP_C >> "${PROJECT_DIR}/apps/${EXECUTABLE_NAME}.c"
+cat << APP_C > "${PROJECT_DIR}/apps/${EXECUTABLE_NAME}.c"
 #include <${PROJECT_NAME}/${LIBRARY_NAME}.h>
 
 int main(void)
@@ -134,7 +130,7 @@ int main(void)
 APP_C
 
 # ------ ./tests/test_library.c
-cat << TEST_LIBRARY_C >> "${PROJECT_DIR}/tests/test_${LIBRARY_NAME}.c"
+cat << TEST_LIBRARY_C > "${PROJECT_DIR}/tests/test_${LIBRARY_NAME}.c"
 #include <${PROJECT_NAME}/${LIBRARY_NAME}.h>
 #include <unity.h>
 
@@ -143,7 +139,7 @@ void tearDown(void) {}
 
 void test_Should_Run_Library_Function()
 {
-	TEST_ASSERT_TRUE_MESSAGE(1 == my_library_function(), "Wrong initial function result of library ${LIBRARY_NAME}.");
+	TEST_ASSERT_TRUE_MESSAGE(1 == my_library_function(), "Wrong initial function result of library ${LIBRARY_NAME}");
 }
 
 int main(void)
@@ -154,7 +150,8 @@ int main(void)
 }
 TEST_LIBRARY_C
 
-cat << BUILD_SH >> "${PROJECT_DIR}/build/build_app.sh"
+# ----- ./build/build_app.sh
+cat << BUILD_SH > "${PROJECT_DIR}/build/build_app.sh"
 #!/bin/bash
 (
 cd "\$( dirname "\${BASH_SOURCE[0]}" )"
@@ -163,11 +160,16 @@ make
 ctest
 )
 BUILD_SH
-
 chmod +x "${PROJECT_DIR}/build/build_app.sh"
+
+### ----- Script echo output
 echo "Created CMake project ${PROJECT_NAME^} in ${PROJECT_DIR}."
-echo "Downloading dependencies into ${PROJECT_DIR}/extern:"
-git clone https://github.com/ThrowTheSwitch/Unity.git "${PROJECT_DIR}/extern/Unity"
+echo "Downloading dependencies into ${PROJECT_DIR}/extern."
+if ! git clone https://github.com/ThrowTheSwitch/Unity.git "${PROJECT_DIR}/extern/Unity" 2>/dev/null && [ -d "${PROJECT_DIR}/extern/Unity" ] ; then
+	echo "  - Unity Test API is already present at ${PROJECT_DIR}/extern/Unity"
+else 
+	echo "  + Unity Test API"
+fi
 echo ""
 echo "Done."
 echo "Run ${PROJECT_DIR}/build/build_app.sh to build and test the project."
