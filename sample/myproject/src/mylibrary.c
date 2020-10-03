@@ -8,7 +8,11 @@ void print_version(void)
 	printf("Myproject (version %0.2f)\n", VERSION);
 }
 
-int my_library_function()
+/*
+	Function used for initial unit test of this library.
+	See ../tests/test_mylibrary.c"
+*/
+int my_library_function(void)
 {
 	return 1;
 }
